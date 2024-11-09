@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ecommerce-assistant"
+version = "0.1.0"
+description = "demo ai powered ecommerce assistant using OpenAPI assistant API"
+authors = ["altakis <42413498+altakis@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-dotenv = "^1.0.1"
+openapi = "^2.0.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.7.3"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
