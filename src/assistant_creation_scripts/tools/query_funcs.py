@@ -20,31 +20,8 @@ def __getProductInfoByName(product_name=None):
     results = []
     for product in product_catalog:
         # Check if the product matches the search criteria
-        if product_name and product_name.lower() in product["Name"].lower():
-            # Format the product details to return
-            product_info = {
-                "ProductID": product["ProductID"],
-                "Name": product["Name"],
-                "Description": product["Description"],
-                "Price": product["Price"],
-                "StockAvailability": product["StockAvailability"],
-                "LastStockUpdate": product["LastStockUpdate"],
-                "Category": product["Category"],
-                "Supplier": product["Supplier"],
-                "Discount": product["Discount"],
-                "IsOrganic": product["IsOrganic"],
-                "Rating": product["Rating"],
-            }
-            results.append(product_info)
-    return results
-
-
-def __getProductInfoByNameOrCategory(product_name=None, category=None):
-    results = []
-    for product in product_catalog:
-        # Check if the product matches the search criteria
         if (product_name and product_name.lower() in product["Name"].lower()) or (
-            category and product["Category"].lower() == category.lower()
+            product_name and product_name.lower() in product["Description"].lower()
         ):
             # Format the product details to return
             product_info = {
@@ -63,6 +40,30 @@ def __getProductInfoByNameOrCategory(product_name=None, category=None):
             results.append(product_info)
     return results
 
+
+def __getProductInfoByCategory(category=None):
+    results = []
+    for product in product_catalog:
+        # Check if the product matches the search criteria
+        if category and product["Category"].lower() == category.lower():
+            # Format the product details to return
+            product_info = {
+                "ProductID": product["ProductID"],
+                "Name": product["Name"],
+                "Description": product["Description"],
+                "Price": product["Price"],
+                "StockAvailability": product["StockAvailability"],
+                "LastStockUpdate": product["LastStockUpdate"],
+                "Category": product["Category"],
+                "Supplier": product["Supplier"],
+                "Discount": product["Discount"],
+                "IsOrganic": product["IsOrganic"],
+                "Rating": product["Rating"],
+            }
+            results.append(product_info)
+    return results
+
+
 def __getProductStockById(product_id):
     # Search for the product by ProductID
     for product in product_catalog:
@@ -72,7 +73,7 @@ def __getProductStockById(product_id):
                 "ProductID": product["ProductID"],
                 "Name": product["Name"],
                 "StockAvailability": product["StockAvailability"],
-                "LastStockUpdate": product["LastStockUpdate"]
+                "LastStockUpdate": product["LastStockUpdate"],
             }
     # If no product is found, return a message indicating so
     return {"error": "Product not found."}
