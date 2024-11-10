@@ -6,7 +6,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Get path to test_data folder
-path_to_test_data = os.path.join(BASE_DIR, "test_data")
+path_to_test_data = os.path.join(BASE_DIR, "assistant_creation_scripts")
+path_to_test_data = os.path.join(path_to_test_data, "test_data")
 
 # Construct the path to the JSON file inside test_data
 path_to_catalog_data = os.path.join(path_to_test_data, "grocery_store_mock_data.json")

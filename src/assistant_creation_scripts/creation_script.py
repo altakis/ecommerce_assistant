@@ -1,6 +1,6 @@
 import openai
 from dotenv import load_dotenv
-import config
+from .config import assistant_configuration
 from .tools import packaged_tools
 
 load_dotenv()
@@ -15,9 +15,9 @@ client = openai.OpenAI()
 
 # ==  Create our Assistant (Uncomment this to create your assistant) ==
 assistant_bot = client.beta.assistants.create(
-    name=config.assistant_name,
-    instructions=config.base_instruction_prompt,
-    model=config.assistant_model,
+    name=assistant_configuration['name'],
+    instructions=assistant_configuration['instruction_prompt'],
+    model=assistant_configuration['model'],
     tools=packaged_tools,
 )
 asistant_id = assistant_bot.id
