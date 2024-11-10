@@ -1,5 +1,5 @@
 packaged_tools = []
 
-from .query_tools import query_catalog
+from .query_tools import __getProductInfoByName
 
-packaged_tools.append(query_catalog)
+packaged_tools.append(__getProductInfoByName)
