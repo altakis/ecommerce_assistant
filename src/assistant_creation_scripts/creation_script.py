@@ -18,7 +18,7 @@ assistant_bot = client.beta.assistants.create(
     name=config.assistant_name,
     instructions=config.base_instruction_prompt,
     model=config.assistant_model,
-    tools = packaged_tools
+    tools=packaged_tools,
 )
 asistant_id = assistant_bot.id
 print(asistant_id)

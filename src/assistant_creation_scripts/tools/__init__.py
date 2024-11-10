@@ -1,1 +1,1 @@
-from package import packaged_tools
+from .package import packaged_tools
