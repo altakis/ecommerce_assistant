@@ -1,5 +1,9 @@
 packaged_tools = []
 
-from .query_tools import __getProductInfoByName
+packaged_tools_funcs = []
 
-packaged_tools.append(__getProductInfoByName)
+from .query_funcs import __getProductInfoByName, __getProductStockById
+
+packaged_tools_funcs.append(__getProductInfoByName)
+
+packaged_tools_funcs.append(__getProductStockById)
