@@ -1,7 +1,7 @@
 import openai
 from dotenv import load_dotenv
 import config
-from tools import packaged_tools
+from .tools import packaged_tools
 
 load_dotenv()
 # openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -29,7 +29,15 @@ thread = client.beta.threads.create(
         {
             "role": "user",
             "content": "What can of service do you provide?",
-        }
+        },
+        {
+            "role": "user",
+            "content": "Tell me about the 'EcoFriendly Water Bottle'.",
+        },
+        {
+            "role": "user",
+            "content": "Do you have any tea products?",
+        },
     ]
 )
 thread_id = thread.id
