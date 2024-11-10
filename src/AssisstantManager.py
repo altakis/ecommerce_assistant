@@ -2,12 +2,13 @@
 
 import json
 import time
-from .assistant_creation_scripts import packaged_tools_funcs
+import asyncio
+from assistant_creation_scripts import packaged_tools_funcs
 
 
 class AssistantManager:
-    thread_id = "thread_naLztNgh8u4p4G4Uq9sZvJhb"
-    assistant_id = "asst_bycqUxuKo7w4TSW1Fn6kMyfj"
+    assistant_id = "asst_nH4SV3YWprIMcBB1myfZyeNu"
+    thread_id = "thread_5AEv8MzvTZWdmIf2dcQakVn1"
     model = "gpt-4o"
 
     def __init__(self, client):
@@ -34,23 +35,23 @@ class AssistantManager:
             self.thread = thread_obj
             print(f"ThreadID::: {self.thread.id}")
 
-    def add_message_to_thread(self, role, content):
+    async def add_message_to_thread(self, role, content):
         if self.thread:
-            self.client.beta.threads.messages.create(
+            await self.client.beta.threads.messages.create(
                 thread_id=self.thread.id, role=role, content=content
             )
 
-    def run_assistant(self, instructions):
+    async def run_assistant(self, instructions):
         if self.thread and self.assistant:
-            self.run = self.client.beta.threads.runs.create(
+            self.run = await self.client.beta.threads.runs.create(
                 thread_id=self.thread.id,
                 assistant_id=self.assistant.id,
                 instructions=instructions,
             )
 
-    def process_message(self):
+    async def process_message(self):
         if self.thread:
-            messages = self.client.beta.threads.messages.list(thread_id=self.thread.id)
+            messages = await self.client.beta.threads.messages.list(thread_id=self.thread.id)
             summary = []
 
             last_message = messages.data[0]
@@ -66,23 +67,15 @@ class AssistantManager:
             #     content = msg.content[0].text.value
             #     print(f"SUMMARY-----> {role.capitalize()}: ==> {content}")
 
-    def get_all_messages_in_thread(self, thread_id):
-        if self.thread:
-            messages = self.client.beta.threads.messages.list(thread_id=self.thread.id)
-            summary = []
+    async def get_all_messages_in_thread(self, thread_id):
+        if thread_id:
+            messages = await self.client.beta.threads.messages.list(thread_id=thread_id)
+            all_thread_data = []
 
-            last_message = messages.data[0]
-            role = last_message.role
-            response = last_message.content[0].text.value
-            summary.append(response)
+            for message in messages.data:
+                all_thread_data.append([message.role, message.content])
 
-            self.summary = "\n".join(summary)
-            print(f"SUMMARY-----> {role.capitalize()}: ==> {response}")
-
-            # for msg in messages:
-            #     role = msg.role
-            #     content = msg.content[0].text.value
-            #     print(f"SUMMARY-----> {role.capitalize()}: ==> {content}")
+            print(all_thread_data)
 
     def call_required_functions(self, required_actions):
         if not self.run:
@@ -93,7 +86,7 @@ class AssistantManager:
             func_name = action["function"]["name"]
             arguments = json.loads(action["function"]["arguments"])
 
-            if func_name == "getProductInfoByName":
+            if func_name == "__getProductInfoByName":
                 output = packaged_tools_funcs[0](name=arguments["name"])
                 print(f"STUFFFFF;;;;{output}")
                 final_str = ""
@@ -116,7 +109,7 @@ class AssistantManager:
     def wait_for_completion(self):
         if self.thread and self.run:
             while True:
-                time.sleep(5)
+                time.sleep(20)
                 run_status = self.client.beta.threads.runs.retrieve(
                     thread_id=self.thread.id, run_id=self.run.id
                 )
@@ -132,8 +125,8 @@ class AssistantManager:
                     )
 
     # Run the steps
-    def run_steps(self):
-        run_steps = self.client.beta.threads.runs.steps.list(
+    async def run_steps(self):
+        run_steps = await self.client.beta.threads.runs.steps.list(
             thread_id=self.thread.id, run_id=self.run.id
         )
         print(f"Run-Steps::: {run_steps}")

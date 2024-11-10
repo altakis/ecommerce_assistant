@@ -8,14 +8,13 @@ load_dotenv()
 
 client = openai.OpenAI()
 
-from .app import execute_streamli_interface
+from app import execute_streamlit_interface
 
 
 def main():
-    print("test")
     manager = AssistantManager(client=client)
 
-    execute_streamli_interface(manager)
+    execute_streamlit_interface(manager)
 
 
 if __name__ == "__main__":

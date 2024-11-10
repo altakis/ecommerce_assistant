@@ -13,6 +13,8 @@ load_dotenv()
 
 client = openai.OpenAI()
 
+packaged_tools.append({"type": "code_interpreter"})
+
 # ==  Create our Assistant (Uncomment this to create your assistant) ==
 assistant_bot = client.beta.assistants.create(
     name=assistant_configuration['name'],

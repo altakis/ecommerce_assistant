@@ -21,9 +21,11 @@ python -m venv .venv
 ```bash
 pip install -r requirements.txt
 ```
-7. Execute frontend test app:
+## Execution
+1. Execute frontend test app:
 ```bash
-python -m src/main.py
+cd src
+python -m main
 ```
 
 ## Notes

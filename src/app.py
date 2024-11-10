@@ -1,6 +1,7 @@
 #Based on https://github.com/pdichone/vincibits-news-summarizer/tree/5a2d14abf94ef8dba0e29d89c73bdfea545aff6d
 import streamlit as st
-def execute_streamli_interface(manager):
+import asyncio
+def execute_streamlit_interface(manager):
     # Streamlit interface
     st.title("Ecommerce ShopBot")
 
@@ -15,7 +16,7 @@ def execute_streamli_interface(manager):
             manager.add_message_to_thread(
                 role="user", content=f"{instructions}"
             )
-            manager.run_assistant(instructions="Ask ShopBot!")
+            manager.run_assistant(instructions=instructions)
 
             # Wait for completions and process messages
             manager.wait_for_completion()
