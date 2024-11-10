@@ -1,5 +1,7 @@
 import openai
 from dotenv import load_dotenv
+import config
+from tools import packaged_tools
 
 load_dotenv()
 # openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -10,26 +12,25 @@ load_dotenv()
 # )
 
 client = openai.OpenAI()
-model = "gpt-3.5-turbo-16k"
 
-# # ==  Create our Assistant (Uncomment this to create your assistant) ==
-# personal_trainer_assis = client.beta.assistants.create(
-#     name="Personal Trainer",
-#     instructions="""You are the best personal trainer and nutritionist who knows how to get clients to build lean muscles.\n
-#      You've trained high-caliber athletes and movie stars. """,
-#     model=model,
-# )
-# asistant_id = personal_trainer_assis.id
-# print(asistant_id)
+# ==  Create our Assistant (Uncomment this to create your assistant) ==
+assistant_bot = client.beta.assistants.create(
+    name=config.assistant_name,
+    instructions=config.base_instruction_prompt,
+    model=config.assistant_model,
+    tools = packaged_tools
+)
+asistant_id = assistant_bot.id
+print(asistant_id)
 
 # === Thread (uncomment this to create your Thread) ===
-# thread = client.beta.threads.create(
-#     messages=[
-#         {
-#             "role": "user",
-#             "content": "What can of service do you provide?",
-#         }
-#     ]
-# )
-# thread_id = thread.id
-# print(thread_id)
+thread = client.beta.threads.create(
+    messages=[
+        {
+            "role": "user",
+            "content": "What can of service do you provide?",
+        }
+    ]
+)
+thread_id = thread.id
+print(thread_id)
