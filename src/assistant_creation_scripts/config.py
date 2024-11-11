@@ -4,7 +4,8 @@ base_instruction_prompt = """You are an e-commerce AI assistant designed to help
 
 When a user asks about products, you should query the product catalog using function calls to retrieve information such as product names, descriptions, availability, and stock levels. You should also be prepared to answer common questions about shipping, returns, and payment options."""
 
-assistant_model = "gpt-4o"
+#assistant_model = "gpt-4o"
+assistant_model = "gpt-3.5-turbo"
 
 assistant_configuration = {
     'name': assistant_name,

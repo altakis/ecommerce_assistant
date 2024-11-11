@@ -1,23 +1,19 @@
 import json
-import os
-from pathlib import Path
+import requests
 
-# Get the path to the src folder
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+product_catalog = None
+product_catalog_src = "https://gist.githubusercontent.com/altakis/962ab969a13ee892f3f29ffeca89ba9b/raw"
 
-# Get path to test_data folder
-path_to_test_data = os.path.join(BASE_DIR, "assistant_creation_scripts")
-path_to_test_data = os.path.join(path_to_test_data, "test_data")
-
-# Construct the path to the JSON file inside test_data
-path_to_catalog_data = os.path.join(path_to_test_data, "grocery_store_mock_data.json")
-
-# Load the JSON data
-with open(path_to_catalog_data, "r") as file:
-    product_catalog = json.load(file)
-
+def load_product_catalog():
+    if product_catalog is not None:
+        return product_catalog
+    response = requests.get(product_catalog_src)
+    if response.status_code == 200:
+        return response.json() 
 
 def __getProductInfoByName(product_name=None):
+    product_catalog = load_product_catalog()
+
     results = []
     for product in product_catalog:
         # Check if the product matches the search criteria
@@ -43,6 +39,8 @@ def __getProductInfoByName(product_name=None):
 
 
 def __getProductInfoByCategory(category=None):
+    product_catalog = load_product_catalog()
+
     results = []
     for product in product_catalog:
         # Check if the product matches the search criteria
@@ -66,6 +64,8 @@ def __getProductInfoByCategory(category=None):
 
 
 def __getProductStockById(product_id):
+    product_catalog = load_product_catalog()
+
     # Search for the product by ProductID
     for product in product_catalog:
         if product["ProductID"] == product_id:
