@@ -28,6 +28,15 @@ class AssistantManager:
                 thread_id=AssistantManager.thread_id
             )
 
+    async def create_assistant(self, name, instructions, tools):
+        if not self.assistant:
+            assistant_obj = await self.client.beta.assistants.create(
+                name=name, instructions=instructions, tools=tools, model=self.model
+            )
+            AssistantManager.assistant_id = assistant_obj.id
+            self.assistant = assistant_obj
+            print(f"AssisID:::: {self.assistant.id}")
+
     def create_thread(self):
         if not self.thread:
             thread_obj = self.client.beta.threads.create()
@@ -51,7 +60,9 @@ class AssistantManager:
 
     async def process_message(self):
         if self.thread:
-            messages = await self.client.beta.threads.messages.list(thread_id=self.thread.id)
+            messages = await self.client.beta.threads.messages.list(
+                thread_id=self.thread.id
+            )
             summary = []
 
             last_message = messages.data[0]
@@ -109,7 +120,7 @@ class AssistantManager:
     def wait_for_completion(self):
         if self.thread and self.run:
             while True:
-                time.sleep(20)
+                time.sleep(5)
                 run_status = self.client.beta.threads.runs.retrieve(
                     thread_id=self.thread.id, run_id=self.run.id
                 )

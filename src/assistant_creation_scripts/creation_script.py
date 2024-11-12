@@ -1,7 +1,12 @@
 import openai
 from dotenv import load_dotenv
+
 from .config import assistant_configuration
-from .tools import packaged_tools
+from .tools import (
+    get_product_info_by_category,
+    get_product_info_by_name,
+    get_product_stock_by_id,
+)
 
 load_dotenv()
 # openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -13,14 +18,16 @@ load_dotenv()
 
 client = openai.OpenAI()
 
-packaged_tools.append({"type": "code_interpreter"})
-
 # ==  Create our Assistant (Uncomment this to create your assistant) ==
 assistant_bot = client.beta.assistants.create(
-    name=assistant_configuration['name'],
-    instructions=assistant_configuration['instruction_prompt'],
-    model=assistant_configuration['model'],
-    tools=packaged_tools,
+    name=assistant_configuration["name"],
+    instructions=assistant_configuration["instruction_prompt"],
+    model=assistant_configuration["model"],
+    tools=[
+        get_product_info_by_name.__getProductInfoByName_tool_definition,
+        get_product_info_by_category.__getProductInfoByCategory_tool_definition,
+        get_product_stock_by_id.__getProductStockById_tool_definition,
+    ],
 )
 asistant_id = assistant_bot.id
 print(asistant_id)
