@@ -1,4 +1,4 @@
-from utils import product_catalog, load_product_catalog
+from .utils import product_catalog, load_product_catalog
 
 
 def __getProductInfoByName(product_name=None):

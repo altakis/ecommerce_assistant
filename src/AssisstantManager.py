@@ -3,7 +3,11 @@
 import json
 import time
 import asyncio
-from assistant_creation_scripts import packaged_tools_funcs
+from assistant_creation_scripts.tools import (
+    get_product_stock_by_id,
+    get_product_info_by_category,
+    get_product_info_by_name,
+)
 
 
 class AssistantManager:
@@ -98,7 +102,29 @@ class AssistantManager:
             arguments = json.loads(action["function"]["arguments"])
 
             if func_name == "__getProductInfoByName":
-                output = packaged_tools_funcs[0](name=arguments["name"])
+                output = get_product_info_by_name.__getProductInfoByName(
+                    name=arguments["Name"]
+                )
+                print(f"STUFFFFF;;;;{output}")
+                final_str = ""
+                for item in output:
+                    final_str += "".join(item)
+
+                tool_outputs.append({"tool_call_id": action["id"], "output": final_str})
+            if func_name == "__getProductInfoByCategory":
+                output = get_product_info_by_category.__getProductInfoByCategory(
+                    name=arguments["Category"]
+                )
+                print(f"STUFFFFF;;;;{output}")
+                final_str = ""
+                for item in output:
+                    final_str += "".join(item)
+
+                tool_outputs.append({"tool_call_id": action["id"], "output": final_str})
+            if func_name == "__getProductStockById":
+                output = get_product_stock_by_id.__getProductStockById(
+                    name=arguments["Id"]
+                )
                 print(f"STUFFFFF;;;;{output}")
                 final_str = ""
                 for item in output:
