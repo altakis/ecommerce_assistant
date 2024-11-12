@@ -2,7 +2,7 @@ import openai
 from dotenv import load_dotenv
 
 from .config import assistant_configuration
-from .tools import (
+from tools import (
     get_product_info_by_category,
     get_product_info_by_name,
     get_product_stock_by_id,
@@ -24,9 +24,9 @@ assistant_bot = client.beta.assistants.create(
     instructions=assistant_configuration["instruction_prompt"],
     model=assistant_configuration["model"],
     tools=[
-        get_product_info_by_name.__getProductInfoByName_tool_definition,
-        get_product_info_by_category.__getProductInfoByCategory_tool_definition,
-        get_product_stock_by_id.__getProductStockById_tool_definition,
+        get_product_info_by_name._getProductInfoByName_tool_definition,
+        get_product_info_by_category._getProductInfoByCategory_tool_definition,
+        get_product_stock_by_id._getProductStockById_tool_definition,
     ],
 )
 asistant_id = assistant_bot.id

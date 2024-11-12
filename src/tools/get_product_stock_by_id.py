@@ -1,6 +1,10 @@
 from .utils import product_catalog, load_product_catalog
 
-def __getProductStockById(product_id):
+def _getProductStockById(product_id):
+    try:
+        product_id = int(product_id)
+    except ValueError as e:
+        print(e)
     product_catalog = load_product_catalog()
 
     # Search for the product by ProductID
@@ -17,7 +21,7 @@ def __getProductStockById(product_id):
     return {"error": "Product not found."}
 
 
-__getProductStockById_tool_definition = {
+_getProductStockById_tool_definition = {
         "type": "function",
         "function": {
             "name": "__getProductStockById",

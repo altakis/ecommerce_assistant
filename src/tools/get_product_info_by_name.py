@@ -1,13 +1,15 @@
 from .utils import product_catalog, load_product_catalog
 
 
-def __getProductInfoByCategory(category=None):
+def _getProductInfoByName(product_name=None):
     product_catalog = load_product_catalog()
 
     results = []
     for product in product_catalog:
         # Check if the product matches the search criteria
-        if category and product["Category"].lower() == category.lower():
+        if (product_name and product_name.lower() in product["Name"].lower()) or (
+            product_name and product_name.lower() in product["Description"].lower()
+        ):
             # Format the product details to return
             product_info = {
                 "ProductID": product["ProductID"],
@@ -26,20 +28,20 @@ def __getProductInfoByCategory(category=None):
     return results
 
 
-__getProductInfoByCategory_tool_definition = {
+_getProductInfoByName_tool_definition = {
     "type": "function",
     "function": {
-        "name": "__getProductInfoByCategory",
-        "description": "Queries the product catalog for all the products that match a category search parameter.",
+        "name": "__getProductInfoByName",
+        "description": "Queries the product catalog for all the products that match a name search parameter.",
         "parameters": {
             "type": "object",
             "properties": {
-                "category": {
+                "product_name": {
                     "type": "string",
-                    "description": "The category of products to search for.",
+                    "description": "The name of the product to search for.",
                 },
             },
-            "required": ["category"],
+            "required": ["product_name"],
         },
     },
 }

@@ -1,7 +1,9 @@
-#Based on https://github.com/pdichone/vincibits-news-summarizer/tree/5a2d14abf94ef8dba0e29d89c73bdfea545aff6d
+# Based on https://github.com/pdichone/vincibits-news-summarizer/tree/5a2d14abf94ef8dba0e29d89c73bdfea545aff6d
 import streamlit as st
-import asyncio
-def execute_streamlit_interface(manager):
+from AssisstantManager import AssistantManager
+
+
+def execute_streamlit_interface(manager: AssistantManager):
     # Streamlit interface
     st.title("Ecommerce ShopBot")
 
@@ -9,13 +11,11 @@ def execute_streamlit_interface(manager):
         instructions = st.text_input("Enter query:")
         submit_button = st.form_submit_button(label="Run Assistant")
 
-        if submit_button:            
+        if submit_button:
             manager.create_thread()
 
             # Add the message and run the assistant
-            manager.add_message_to_thread(
-                role="user", content=f"{instructions}"
-            )
+            manager.add_message_to_thread(role="user", content=f"{instructions}")
             manager.run_assistant(instructions=instructions)
 
             # Wait for completions and process messages

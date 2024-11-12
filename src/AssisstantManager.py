@@ -2,18 +2,20 @@
 
 import json
 import time
-import asyncio
-from assistant_creation_scripts.tools import (
-    get_product_stock_by_id,
-    get_product_info_by_category,
-    get_product_info_by_name,
+
+from assistant_creation_scripts.config import assistant_configuration
+from tools.available_tools import (
+    _getProductInfoByCategory,
+    _getProductInfoByName,
+    _getProductStockById,
+    get_tools,
 )
 
 
 class AssistantManager:
-    assistant_id = "asst_nH4SV3YWprIMcBB1myfZyeNu"
-    thread_id = "thread_5AEv8MzvTZWdmIf2dcQakVn1"
-    model = "gpt-4o"
+    assistant_id = "asst_CLK8ocJG1D4lGYQ6EQp52BTj"
+    thread_id = None
+    model = assistant_configuration["model"]
 
     def __init__(self, client):
         self.client = client
@@ -32,10 +34,13 @@ class AssistantManager:
                 thread_id=AssistantManager.thread_id
             )
 
-    async def create_assistant(self, name, instructions, tools):
+    def create_assistant(self, name):
         if not self.assistant:
-            assistant_obj = await self.client.beta.assistants.create(
-                name=name, instructions=instructions, tools=tools, model=self.model
+            assistant_obj = self.client.beta.assistants.create(
+                name=assistant_configuration["name"],
+                instructions=assistant_configuration["instruction_prompt"],
+                tools=get_tools(),
+                model=self.model,
             )
             AssistantManager.assistant_id = assistant_obj.id
             self.assistant = assistant_obj
@@ -48,32 +53,27 @@ class AssistantManager:
             self.thread = thread_obj
             print(f"ThreadID::: {self.thread.id}")
 
-    async def add_message_to_thread(self, role, content):
+    def add_message_to_thread(self, role, content):
         if self.thread:
-            await self.client.beta.threads.messages.create(
+            self.client.beta.threads.messages.create(
                 thread_id=self.thread.id, role=role, content=content
             )
 
-    async def run_assistant(self, instructions):
+    def run_assistant(self, instructions):
         if self.thread and self.assistant:
-            self.run = await self.client.beta.threads.runs.create(
+            self.run = self.client.beta.threads.runs.create(
                 thread_id=self.thread.id,
                 assistant_id=self.assistant.id,
                 instructions=instructions,
             )
 
-    async def process_message(self):
+    def process_message(self):
         if self.thread:
-            messages = await self.client.beta.threads.messages.list(
-                thread_id=self.thread.id
-            )
-            summary = []
-
+            messages = self.client.beta.threads.messages.list(thread_id=self.thread.id)
             last_message = messages.data[0]
             role = last_message.role
             response = last_message.content[0].text.value
-            summary.append(response)
-
+            summary = [response]
             self.summary = "\n".join(summary)
             print(f"SUMMARY-----> {role.capitalize()}: ==> {response}")
 
@@ -82,62 +82,53 @@ class AssistantManager:
             #     content = msg.content[0].text.value
             #     print(f"SUMMARY-----> {role.capitalize()}: ==> {content}")
 
-    async def get_all_messages_in_thread(self, thread_id):
+    def get_all_messages_in_thread(self, thread_id):
         if thread_id:
-            messages = await self.client.beta.threads.messages.list(thread_id=thread_id)
-            all_thread_data = []
-
-            for message in messages.data:
-                all_thread_data.append([message.role, message.content])
-
+            messages = self.client.beta.threads.messages.list(thread_id=thread_id)
+            all_thread_data = [
+                [message.role, message.content] for message in messages.data
+            ]
             print(all_thread_data)
 
-    def call_required_functions(self, required_actions):
+    def call_required_functions(self, required_actions: dict):
         if not self.run:
             return
         tool_outputs = []
 
-        for action in required_actions["tool_calls"]:
-            func_name = action["function"]["name"]
-            arguments = json.loads(action["function"]["arguments"])
-
-            if func_name == "__getProductInfoByName":
-                output = get_product_info_by_name.__getProductInfoByName(
-                    name=arguments["Name"]
-                )
+        for tool in required_actions.tool_calls:
+            if tool.function.name == "_getProductInfoByName":
+                args = json.loads(tool.function.arguments)
+                output = _getProductInfoByName(**args)
                 print(f"STUFFFFF;;;;{output}")
-                final_str = ""
-                for item in output:
-                    final_str += "".join(item)
-
-                tool_outputs.append({"tool_call_id": action["id"], "output": final_str})
-            if func_name == "__getProductInfoByCategory":
-                output = get_product_info_by_category.__getProductInfoByCategory(
-                    name=arguments["Category"]
-                )
+                final_str = "".join("".join(item) for item in output)
+                tool_outputs.append({"tool_call_id": tool["id"], "output": final_str})
+            elif tool.function.name == "_getProductStockById":
+                args = json.loads(tool.function.arguments)
+                output = _getProductStockById(**args)
                 print(f"STUFFFFF;;;;{output}")
-                final_str = ""
-                for item in output:
-                    final_str += "".join(item)
-
-                tool_outputs.append({"tool_call_id": action["id"], "output": final_str})
-            if func_name == "__getProductStockById":
-                output = get_product_stock_by_id.__getProductStockById(
-                    name=arguments["Id"]
-                )
+                final_str = "".join("".join(item) for item in output)
+                tool_outputs.append({"tool_call_id": tool["id"], "output": final_str})
+            elif tool.function.name == "_getProductInfoByCategory":
+                args = json.loads(tool.function.arguments)
+                output = _getProductInfoByCategory(**args)
                 print(f"STUFFFFF;;;;{output}")
-                final_str = ""
-                for item in output:
-                    final_str += "".join(item)
+                final_str = "".join("".join(item) for item in output)
+                tool_outputs.append({"tool_call_id": tool["id"], "output": final_str})
 
-                tool_outputs.append({"tool_call_id": action["id"], "output": final_str})
-            else:
-                raise ValueError(f"Unknown function: {func_name}")
-
-        print("Submitting outputs back to the Assistant...")
-        self.client.beta.threads.runs.submit_tool_outputs(
-            thread_id=self.thread.id, run_id=self.run.id, tool_outputs=tool_outputs
-        )
+        # Submit all tool outputs at once after collecting them in a list
+        if tool_outputs:
+            print("Submitting outputs back to the Assistant...")
+            try:
+                self.client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=self.thread.id,
+                    run_id=self.run.id,
+                    tool_outputs=tool_outputs,
+                )
+                print("Tool outputs submitted successfully.")
+            except Exception as e:
+                print("Failed to submit tool outputs:", e)
+        else:
+            print("No tool outputs to submit.")
 
     # for streamlit
     def get_summary(self):
@@ -158,12 +149,12 @@ class AssistantManager:
                 elif run_status.status == "requires_action":
                     print("FUNCTION CALLING NOW...")
                     self.call_required_functions(
-                        required_actions=run_status.required_action.submit_tool_outputs.model_dump()
+                        required_actions=run_status.required_action.submit_tool_outputs
                     )
 
     # Run the steps
-    async def run_steps(self):
-        run_steps = await self.client.beta.threads.runs.steps.list(
+    def run_steps(self):
+        run_steps = self.client.beta.threads.runs.steps.list(
             thread_id=self.thread.id, run_id=self.run.id
         )
         print(f"Run-Steps::: {run_steps}")
